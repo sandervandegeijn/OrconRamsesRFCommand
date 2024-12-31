@@ -5,18 +5,13 @@ logger = logging.getLogger(__name__)
 
 class OrconRamsesRFCommand:
     """
-    This class can generate commands to set fan speeds (1 to 100%) 
-    for parameters 3 through 8 on an Orcon HRC 400 ventilation unit, 
-    which uses the Ramses II protocol.
-    
-    It demonstrates how to build the 'Write' command payload 
-    based on log observations. 
+    This class controls an Orcon HVAC unit via Ramses_RF.
     """
 
     def __init__(self, remote_address, wtw_address, capacity_in_m3_per_hour=400):
         """
-        :param remote_address: The address of the remote (e.g. "37:090513")
-        :param wtw_address: The address of the WTW unit (e.g. "32:155065")
+        :param remote_address: The address of the remote (e.g. "37:11111")
+        :param wtw_address: The address of the WTW unit (e.g. "32:222222")
         """
         self.remote = remote_address
         self.wtw = wtw_address
