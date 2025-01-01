@@ -5,7 +5,32 @@ logger = logging.getLogger(__name__)
 
 class OrconRamsesRFCommand:
     """
-    This class controls an Orcon HVAC unit via Ramses_RF.
+    This class, `OrconRamsesRFCommand`, provides an interface for controlling an Orcon HVAC unit via Ramses_RF commands.
+
+    Mapping Between Parameters and Functions:
+    Each parameter corresponds to a specific setting in the Orcon HVAC system, and the class provides functions to control these settings.
+
+        1. Absence Mode Supply Fan Speed (Parameter 1): Controlled by `set_absence_supply_fan_speed()`. Sets the supply fan speed in absence mode (0-40%).
+        2. Absence Mode Exhaust Fan Speed (Parameter 2): Controlled by `set_absence_exhaust_fan_speed()`. Sets the exhaust fan speed in absence mode (0-40%).
+        3. Low Supply Fan Speed (Parameter 3): Controlled via `set_fan_speed(level_name='low', ...)`. Adjusts the supply fan speed for low mode.
+        4. Low Exhaust Fan Speed (Parameter 4): Controlled via `set_fan_speed(level_name='low', ...)`. Adjusts the exhaust fan speed for low mode.
+        5. Medium Supply Fan Speed (Parameter 5): Controlled via `set_fan_speed(level_name='medium', ...)`. Adjusts the supply fan speed for medium mode.
+        6. Medium Exhaust Fan Speed (Parameter 6): Controlled via `set_fan_speed(level_name='medium', ...)`. Adjusts the exhaust fan speed for medium mode.
+        7. High Supply Fan Speed (Parameter 7): Controlled via `set_fan_speed(level_name='high', ...)`. Adjusts the supply fan speed for high mode.
+        8. High Exhaust Fan Speed (Parameter 8): Controlled via `set_fan_speed(level_name='high', ...)`. Adjusts the exhaust fan speed for high mode.
+        9. Boost Mode Fan Speed (Parameter 9): Controlled by `set_boost_mode_speed()`. Adjusts the fan speed in boost mode (0-100%).
+        10. Filter Replacement Time (Parameter 10): Controlled by `set_filter_replacement_time()`. Sets the number of days until filter replacement notification (90, 120, 150, 180 days).
+        11. Humidity Scenario (Parameter 11): Controlled by `set_humidity_scenario()`. Sets the humidity scenario mode (0 for medium, 1 for high).
+        12. Sensor Sensitivity (Parameter 12): Controlled by `set_sensor_sensitivity()`. Adjusts the sensitivity of the sensor (0-15).
+        13. Humidity Sensor Overrun Time (Parameter 13): Controlled by `set_humidity_scenario_runtime()`. Sets the overrun time for humidity detection (15-60 minutes).
+        14. Comfort Temperature (Parameter 14): Controlled by `set_comfort_temperature()`. Adjusts the comfort temperature setting (0.0°C to 30.0°C).
+        15. Cooling Season Activation Temperature (Parameter 15): Controlled by `set_cooling_activation_temp()`. Sets the outdoor temperature for cooling season activation (0°C to 30°C).
+
+    Additional Functions:
+        - Bypass Control: Includes `open_bypass()`, `close_bypass()`, and `automatic_bypass()` for managing the bypass settings.
+        - Predefined Modes: Functions like `set_to_low_mode()`, `set_to_medium_mode()`, `set_to_high_mode()`, and `set_to_auto_mode()` provide convenience for common operations.
+
+    Note: The parameter mappings and ranges are based on the official configuration table provided in the documentation.
     """
 
     def __init__(self, remote_address, wtw_address, capacity_in_m3_per_hour=400):
