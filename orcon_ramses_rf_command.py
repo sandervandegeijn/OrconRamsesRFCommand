@@ -268,7 +268,9 @@ class OrconRamsesRFCommand:
 
         This function controls the fan speed percentage for the supply fan 
         in absence mode. The value ranges from 0% to 40%, and is encoded 
-        as twice the percentage value in the payload.
+        as twice the percentage value in the payload. 
+
+        Default is 0%
 
         :param speed_percentage: The desired fan speed percentage (0..40).
         :return: The command string to set the absence supply fan speed.
@@ -304,6 +306,8 @@ class OrconRamsesRFCommand:
         This function controls the fan speed percentage for the exhaust fan 
         in absence mode. The value ranges from 0% to 40%, and is encoded 
         as twice the percentage value in the payload.
+
+        Default is 0%
 
         :param speed_percentage: The desired fan speed percentage (0..40).
         :return: The command string to set the absence exhaust fan speed.
@@ -371,39 +375,79 @@ class OrconRamsesRFCommand:
         Generate the command payload to set the time until filter replacement (Parameter 10).
 
         This function sets the number of days until the filter replacement notification is triggered.
-        The value ranges from 0 to 255 days and is encoded as its hexadecimal equivalent in the payload.
+        Only predefined values (90, 120, 150, 180) are accepted, with corresponding payloads.
 
-        Grepped commands:
-        value 1:		W --- 37:ID 32:ID --:------ 2411 023 00004E0000000000010000000000000001000000010000
-        value 0: 		W --- 37:ID 32:ID --:------ 2411 023 00004E0000000000000000000000000001000000010000
+        Captured commands:
+        - value 90:  W --- 37:XXXXX 32:YYYYY --:------ 2411 023 00003100100000005A00000000000007080000001E002C
+        - value 120: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 00003100100000007800000000000007080000001E002C
+        - value 150: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 00003100100000009600000000000007080000001E002C
+        - value 180: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000310010000000B400000000000007080000001E002C
 
-        :param days: The desired time until filter replacement in days (0..255).
+        default: 180
+
+        :param days: The desired time until filter replacement in days (90, 120, 150, 180).
         :return: The command string to set the filter replacement time.
-        :raises ValueError: if days are out of range.
+        :raises ValueError: if days are not in the predefined set of values.
         """
-        if not (0 <= days <= 255):
-            raise ValueError("Filter replacement time must be between 0 and 255 days.")
+        # Mapping of allowed days to their corresponding payload values.
+        payload_map = {
+            90:  "00003100100000005A00000000000007080000001E002C",
+            120: "00003100100000007800000000000007080000001E002C",
+            150: "00003100100000009600000000000007080000001E002C",
+            180: "0000310010000000B400000000000007080000001E002C",
+        }
 
-        # Calculate the ParamID for Parameter 10 (fixed as 0x31).
-        param_id = 0x31
+        if days not in payload_map:
+            raise ValueError("Days must be one of the following: 90, 120, 150, 180.")
 
-        # Convert the number of days to its hexadecimal representation.
-        days_hex = f"{days:02X}"
-
-        # Build the prefix based on observations.
-        prefix = f"0000{param_id:02X}0010000000{days_hex}"
-
-        # Fixed suffix for Parameter 10 based on patterns in data.
-        suffix = "000000000007080000001E002C"
-
-        # Combine prefix + suffix into a single hex string payload.
-        payload = prefix + suffix
+        # Retrieve the corresponding payload for the given days.
+        payload = payload_map[days]
+        
+        # Build the complete message.
         msg = (
             f"W --- {self.remote} {self.wtw} --:------ "
             f"2411 023 {payload}"
         )
         return [msg]
 
+
+    # def set_sensor_sensitivity(self, sensitivity: int) -> str:
+    #     """
+    #     Generate the command payload to set the sensor sensitivity (Parameter 12).
+
+    #     This function controls the sensitivity of the sensor. The value can range from 0 to 15.
+
+    #     Captured commands:
+    #     value 6: 		W --- 37:ID 32:ID --:------ 2411 023 00005200010000003C00000000000000FA000000010032
+    #     value 15:		W --- 37:ID 32:ID --:------ 2411 023 00005200010000009600000000000000FA000000010032
+    #     value 5: 		W --- 37:ID 32:ID --:------ 2411 023 00005200010000003200000000000000FA000000010032
+
+    #     :param sensitivity: The desired sensor sensitivity (0..15).
+    #     :return: The command string to set the sensor sensitivity.
+    #     :raises ValueError: if sensitivity is out of range.
+    #     """
+    #     if not (0 <= sensitivity <= 15):
+    #         raise ValueError("Sensor sensitivity must be between 0 and 15.")
+
+    #     # Calculate the ParamID for Parameter 12 (fixed as 0x52).
+    #     param_id = 0x52
+
+    #     # Multiply the sensitivity value by 6 to match observed encoding (e.g., 5 -> 0x32).
+    #     sensitivity_hex = f"{sensitivity * 6:02X}"
+
+    #     # Build the prefix based on observations.
+    #     prefix = f"0000{param_id:02X}0001000000{sensitivity_hex}"
+
+    #     # Fixed suffix for Parameter 12 based on patterns in data.
+    #     suffix = "00000000000000FA000000010032"
+
+    #     # Combine prefix + suffix into a single hex string payload.
+    #     payload = prefix + suffix
+    #     msg = (
+    #         f"W --- {self.remote} {self.wtw} --:------ "
+    #         f"2411 023 {payload}"
+    #     )
+    #     return [msg]
     def set_sensor_sensitivity(self, sensitivity: int) -> str:
         """
         Generate the command payload to set the sensor sensitivity (Parameter 12).
@@ -411,9 +455,9 @@ class OrconRamsesRFCommand:
         This function controls the sensitivity of the sensor. The value can range from 0 to 15.
 
         Captured commands:
-        value 6: 		W --- 37:ID 32:ID --:------ 2411 023 00005200010000003C00000000000000FA000000010032
-        value 15:		W --- 37:ID 32:ID --:------ 2411 023 00005200010000009600000000000000FA000000010032
-        value 5: 		W --- 37:ID 32:ID --:------ 2411 023 00005200010000003200000000000000FA000000010032
+        value 6: 		W --- 37:XXXXX 32:YYYYY --:------ 2411 023 00005200010000003C00000000000000FA000000010032
+        value 15:		W --- 37:XXXXX 32:YYYYY --:------ 2411 023 00005200010000009600000000000000FA000000010032
+        value 5: 		W --- 37:XXXXX 32:YYYYY --:------ 2411 023 00005200010000003200000000000000FA000000010032
 
         :param sensitivity: The desired sensor sensitivity (0..15).
         :return: The command string to set the sensor sensitivity.
@@ -425,8 +469,8 @@ class OrconRamsesRFCommand:
         # Calculate the ParamID for Parameter 12 (fixed as 0x52).
         param_id = 0x52
 
-        # Multiply the sensitivity value by 6 to match observed encoding (e.g., 5 -> 0x32).
-        sensitivity_hex = f"{sensitivity * 6:02X}"
+        # Multiply the sensitivity value by 12 to match observed encoding (e.g., 5 -> 0x3C).
+        sensitivity_hex = f"{sensitivity * 12:02X}"
 
         # Build the prefix based on observations.
         prefix = f"0000{param_id:02X}0001000000{sensitivity_hex}"
@@ -441,6 +485,34 @@ class OrconRamsesRFCommand:
             f"2411 023 {payload}"
         )
         return [msg]
+
+    def set_humidity_scenario(self, mode: int) -> str:
+        """
+        Generate the command payload to set the humidity scenario (Parameter 11).
+
+        This function controls the humidity scenario setting. The value can be:
+        - 0: Midden (Medium)
+        - 1: Hoog (High)
+
+        Captured commands:
+        - Waarde 1: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 00004E0000000000010000000000000001000000010000
+        - Waarde 0: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 00004E0000000000000000000000000001000000010000
+
+        :param mode: The desired humidity scenario mode (0 or 1).
+        :return: The command string to set the humidity scenario.
+        :raises ValueError: if mode is not 0 or 1.
+        """
+        if mode not in (0, 1):
+            raise ValueError("Humidity scenario mode must be 0 (Midden) or 1 (Hoog).")
+
+        if mode == 0:
+            msg = f"W --- {self.remote} {self.wtw} --:------ 2411 023 00004E0000000000000000000000000001000000010000"
+        
+        if mode == 1:
+            msg = f"W --- {self.remote} {self.wtw} --:------ 2411 023 00004E0000000000010000000000000001000000010000"
+
+        return [msg]
+
 
     def set_humidity_scenario_runtime(self, minutes: int) -> str:
         """
