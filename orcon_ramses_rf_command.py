@@ -595,44 +595,50 @@ class OrconRamsesRFCommand:
         # Format the temperature as a 4-character uppercase hex string
         temperature_encoded = f"{temperature_hex:04X}"
 
-        payload = (
+        msg = (
             f"W --- {self.remote} {self.wtw} --:------ "
             f"2411 023 00007500920000{temperature_encoded}0000000000000BB8000000010001"
         )
 
-        return [payload]
-
+        return [msg]
 
     def set_min_fan_speed_bypass(self, speed_percentage: int) -> str:
         """
-        Generate the command payload to set the minimum fan speed for bypass (Parameter 15).
+        Set the minimum fan speed for bypass in the Orcon WTW unit.
 
-        This function controls the minimum fan speed percentage when the bypass is active.
-        The value can range from 0% to 30%, with a default of 15%.
+        Captured Commands:
+        - Speed 0%: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000000000000000000003C000000010001
+        - Speed 1%: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000002000000000000003C000000010001
+        - Speed 2%: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000004000000000000003C000000010001
+        - Speed 14%: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F0000001C000000000000003C000000010001
+        - Speed 15%: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F0000001E000000000000003C000000010001
+        - Speed 16%: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000020000000000000003C000000010001
+        - Speed 17%: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000022000000000000003C000000010001
+        - Speed 20%: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000028000000000000003C000000010001
+        - Speed 24%: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000030000000000000003C000000010001
 
-        :param speed_percentage: The desired minimum fan speed percentage (0..30).
-        :return: The command string to set the minimum fan speed for bypass.
-        :raises ValueError: if speed_percentage is out of range.
+        Default: 15
 
-        Captured data for Parameter 15:
-        - Value 16: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000020000000000000003C000000010001
-        - Value 20: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000028000000000000003C000000010001
-        - Value 24: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000030000000000000003C000000010001
+        Args:
+            speed_percentage (int): The desired fan speed percentage (e.g., 14, 15, 16, etc.).
+
+        Returns:
+            str: The command string to send to the WTW unit.
         """
         if not (0 <= speed_percentage <= 30):
-            raise ValueError("Minimum fan speed for bypass must be between 0% and 30%.")
-
-        # Calculate the ParamID for Parameter 15 (fixed as 0xA1).
+            raise ValueError("Speed percentage for bypass must be between 0 and 30.")
+        
+        # Calculate the ParamID for Parameter 15
         param_id = 0xA1
 
-        # Convert the speed percentage to its hexadecimal representation (value * 2).
+        # Multiply the speed percentage by 2 to get the hex representation.
         speed_hex = f"{speed_percentage * 2:02X}"
 
         # Build the prefix based on observations.
         prefix = f"0000{param_id:02X}000F000000{speed_hex}"
 
         # Fixed suffix for Parameter 15 based on patterns in data.
-        suffix = "00000000003C000000010001"
+        suffix = "000000000000003C000000010001"
 
         # Combine prefix + suffix into a single hex string payload.
         payload = prefix + suffix
@@ -640,4 +646,5 @@ class OrconRamsesRFCommand:
             f"W --- {self.remote} {self.wtw} --:------ "
             f"2411 023 {payload}"
         )
+
         return [msg]
