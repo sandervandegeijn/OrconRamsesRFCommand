@@ -76,6 +76,7 @@ class MQTTClient:
 
         # Setup logging
         self.logger = logger
+        self.logger.debug(f"Initialization parameters: {self.__dict__}")
 
     def on_connect(self, client, userdata, flags, rc):
         """
@@ -117,6 +118,7 @@ class MQTTClient:
         """
         Connect to the MQTT broker and start the network loop.
         """
+        self.logger.debug(f"Connecting to MQTT Broker: {self.server}:{self.port}")
         try:
             self.client.connect(self.server, self.port, self.keepalive)
             self.client.loop_start()

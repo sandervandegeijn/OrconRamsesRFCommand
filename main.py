@@ -1,6 +1,7 @@
 
 from orcon_ramses_rf_command import OrconRamsesRFCommand
 from mqtt_client import MQTTClient
+import paho.mqtt.client as mqtt
 import time
 import logging
 import sys
@@ -14,7 +15,7 @@ def main():
     different fan speed settings.
     """
     # Create an instance with default addresses
-    orcon = OrconRamsesRFCommand(remote_address="37:1111111", wtw_address="32:2222222", capacity_in_m3_per_hour=400)
+    orcon = OrconRamsesRFCommand(remote_address="37:XX", wtw_address="32:YY", capacity_in_m3_per_hour=400)
 
     mqtt_client = MQTTClient(
         server="192.168.2.35",
