@@ -30,8 +30,9 @@ def main():
         # Give some time to establish the connection
         time.sleep(1)
 
-        # Example 2: Set fan speed to low with 50%
+        # Example 2: Set fan speed to 104 m3/h
         commands = orcon.set_fan_speed("low", 104)
+        # Example 3: Set fan speed to low mode
         commands += orcon.set_to_low_mode()
 
         logger.debug(f"Commands:")
