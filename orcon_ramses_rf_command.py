@@ -25,6 +25,20 @@ class OrconRamsesRFCommand:
 
         The speed is encoded at twice the percentage 
         (e.g. 28% → 56 decimal → 0x38 in hex).
+
+        Captured commands:
+            - Parameter 3 to 28: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 00003F000F0000003800000000000000A0000000010032
+            - Parameter 3 to 27: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 00003F000F0000003600000000000000A0000000010032
+            - Parameter 3 to 26: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 00003F000F0000003400000000000000A0000000010032
+            - Parameter 4 to 40: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 000040000F0000005000000000000000A0000000010032
+            - Parameter 4 to 26: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 000040000F0000003400000000000000A0000000010032
+            - Parameter 5 to 44: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 000041000F0000005800000000000000C8000000010032
+            - Parameter 6 to 50: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 000042000F0000006400000014000000C8000000010032
+            - Parameter 6 to 58: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 000042000F0000007400000014000000C8000000010032
+            - Parameter 6 to 60: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 000042000F0000007800000014000000C8000000010032
+            - Parameter 7 to 73: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 000043000F0000009200000000000000C8000000010032
+            - Parameter 8 to 79: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 000044000F0000009E00000014000000C8000000010032
+
         
         :param param: The parameter number (3..8).
         :param speed_percentage: The speed percentage (1..100).
@@ -35,7 +49,7 @@ class OrconRamsesRFCommand:
             3: "00000000000000A0000000010032",
             4: "00000000000000A0000000010032",
             5: "00000000000000C8000000010032",
-            6: "0000000014000000C8000000010032",
+            6: "00000014000000C8000000010032",
             7: "00000000000000C8000000010032",  # Corrected suffix for parameter 7
             8: "00000014000000C8000000010032"   # Corrected suffix for parameter 8
         }
