@@ -688,6 +688,10 @@ class OrconRamsesRFCommand:
 
         Parameter 17 corresponds to the bypass fan speed regulation setting.
 
+        Captured traffic:
+            3: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000E70000000000030000000300000005000000010000
+            4: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000E70000000000040000000300000005000000010000
+
         :param setting: The desired regulation setting (3 for medium, 4 for high).
         :return: The command string for setting the bypass fan speed regulation.
         :raises ValueError: If the provided setting is not 3 or 4.
@@ -714,6 +718,11 @@ class OrconRamsesRFCommand:
         Adjust the bypass fan speed setting.
 
         Parameter 18 corresponds to the bypass fan speed setting.
+
+        Captured traffic:
+
+        1: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000E80000000000010000000000000001000000010000
+        0: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000E80000000000000000000000000001000000010000
 
         :param setting: The desired setting (0 to follow parameter 16, 1 to follow parameter 17).
         :return: The command string for setting the bypass fan speed.
