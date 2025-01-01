@@ -25,6 +25,8 @@ class OrconRamsesRFCommand:
         13. Humidity Sensor Overrun Time (Parameter 13): Controlled by `set_humidity_scenario_runtime()`. Sets the overrun time for humidity detection (15-60 minutes).
         14. Comfort Temperature (Parameter 14): Controlled by `set_comfort_temperature()`. Adjusts the comfort temperature setting (0.0°C to 30.0°C).
         15. Cooling Season Activation Temperature (Parameter 15): Controlled by `set_cooling_activation_temp()`. Sets the outdoor temperature for cooling season activation (0°C to 30°C).
+        16. Minimal Speed of the HRC in Bypass Scenario (Parameter 16): Controlled by set_min_fan_speed_during_bypass(). Adjusts the minimal fan speed of the HRC in the bypass scenario (0-100%).
+        17. Regulation Setting for Bypass Fan Speed (Parameter 17): Controlled by set_bypass_fan_speed_regulation(). Adjusts the regulation setting for bypass fan speed (default: 4).
 
     Additional Functions:
         - Bypass Control: Includes `open_bypass()`, `close_bypass()`, and `automatic_bypass()` for managing the bypass settings.
@@ -449,44 +451,6 @@ class OrconRamsesRFCommand:
         )
         return [msg]
 
-
-    # def set_sensor_sensitivity(self, sensitivity: int) -> str:
-    #     """
-    #     Generate the command payload to set the sensor sensitivity (Parameter 12).
-
-    #     This function controls the sensitivity of the sensor. The value can range from 0 to 15.
-
-    #     Captured commands:
-    #     value 6: 		W --- 37:ID 32:ID --:------ 2411 023 00005200010000003C00000000000000FA000000010032
-    #     value 15:		W --- 37:ID 32:ID --:------ 2411 023 00005200010000009600000000000000FA000000010032
-    #     value 5: 		W --- 37:ID 32:ID --:------ 2411 023 00005200010000003200000000000000FA000000010032
-
-    #     :param sensitivity: The desired sensor sensitivity (0..15).
-    #     :return: The command string to set the sensor sensitivity.
-    #     :raises ValueError: if sensitivity is out of range.
-    #     """
-    #     if not (0 <= sensitivity <= 15):
-    #         raise ValueError("Sensor sensitivity must be between 0 and 15.")
-
-    #     # Calculate the ParamID for Parameter 12 (fixed as 0x52).
-    #     param_id = 0x52
-
-    #     # Multiply the sensitivity value by 6 to match observed encoding (e.g., 5 -> 0x32).
-    #     sensitivity_hex = f"{sensitivity * 6:02X}"
-
-    #     # Build the prefix based on observations.
-    #     prefix = f"0000{param_id:02X}0001000000{sensitivity_hex}"
-
-    #     # Fixed suffix for Parameter 12 based on patterns in data.
-    #     suffix = "00000000000000FA000000010032"
-
-    #     # Combine prefix + suffix into a single hex string payload.
-    #     payload = prefix + suffix
-    #     msg = (
-    #         f"W --- {self.remote} {self.wtw} --:------ "
-    #         f"2411 023 {payload}"
-    #     )
-    #     return [msg]
     def set_sensor_sensitivity(self, sensitivity: int) -> str:
         """
         Generate the command payload to set the sensor sensitivity (Parameter 12).
@@ -667,6 +631,76 @@ class OrconRamsesRFCommand:
 
         # Combine prefix + suffix into a single hex string payload.
         payload = prefix + suffix
+        msg = (
+            f"W --- {self.remote} {self.wtw} --:------ "
+            f"2411 023 {payload}"
+        )
+
+        return [msg]
+
+    def set_min_fan_speed_during_bypass(self, speed_percentage: int) -> str:
+        """
+        Build the hex payload for setting the minimum fan speed during bypass.
+        This is for parameter 16, based on observed radio traffic.
+
+        Radio traffic for parameter 16:
+            - Value 28: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 00007900110000011800000000000003E8000000010032
+            - Value 32: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 00007900110000014000000000000003E8000000010032
+            - Value 35: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 00007900110000015E00000000000003E8000000010032
+            - Value 100: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000790011000003E800000000000003E8000000010032
+            - Value 0: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 00007900110000000000000000000003E8000000010032
+            - Value 4: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 00007900110000002800000000000003E8000000010032
+            - Value 8: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 00007900110000005000000000000003E8000000010032
+            - Value 12: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 00007900110000007800000000000003E8000000010032
+            - Value 16: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000790011000000A000000000000003E8000000010032
+            - Value 10: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 00007900110000003200000000000003E8000000010032
+            - Value 20: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000790011000000C800000000000003E8000000010032
+            - Value 60: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 00007900110000025800000000000003E8000000010032
+            - Value 70: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000790011000002BC00000000000003E8000000010032
+            - Value 80: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 00007900110000032000000000000003E8000000010032
+            - Value 90: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000790011000003E800000000000003E8000000010032
+
+        :param speed_percentage: The speed percentage (0..100).
+        :return: The hex string payload (without spacing).
+        :raises ValueError: if speed_percentage is out of range.
+        """
+        if not (0 <= speed_percentage <= 100):
+            raise ValueError("Speed percentage for minimum fan speed during bypass must be between 0 and 100.")
+
+        # Calculate the hex value for the speed percentage
+        hex_speed = f"{speed_percentage * 10:04X}"  # Convert to a 4-character zero-padded hex string
+
+        # Build the payload string
+        payload = f"00007900110000{hex_speed}00000000000003E8000000010032"
+
+        # Build the complete message
+        msg = (
+            f"W --- {self.remote} {self.wtw} --:------ "
+            f"2411 023 {payload}"
+        )
+
+        return [msg]
+
+    def set_bypass_fan_speed_regulation(self, setting: int) -> str:
+        """
+        Adjust the regulation setting for bypass fan speed.
+
+        Parameter 17 corresponds to the bypass fan speed regulation setting.
+
+        :param setting: The desired regulation setting (3 for medium, 4 for high).
+        :return: The command string for setting the bypass fan speed regulation.
+        :raises ValueError: If the provided setting is not 3 or 4.
+        """
+        if setting not in (3, 4):
+            raise ValueError("Regulation setting for parameter 17 must be 3 (medium) or 4 (high).")
+
+        if setting == 3:
+            payload = "0000E70000000000030000000300000005000000010000"
+
+        if setting == 4:
+            payload = "0000E70000000000040000000300000005000000010000"
+
+        # Construct the full message
         msg = (
             f"W --- {self.remote} {self.wtw} --:------ "
             f"2411 023 {payload}"
