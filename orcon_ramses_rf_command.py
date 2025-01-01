@@ -602,40 +602,40 @@ class OrconRamsesRFCommand:
 
         return [msg]
 
-    def set_min_fan_speed_bypass(self, speed_percentage: int) -> str:
+    def set_cooling_activation_temp(self, temperature_celsius: int) -> str:
         """
-        Set the minimum fan speed for bypass in the Orcon WTW unit.
+        Set the outdoor temperature for activation of the cooling season in the Orcon WTW unit.
 
         Captured Commands:
-        - Speed 0%: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000000000000000000003C000000010001
-        - Speed 1%: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000002000000000000003C000000010001
-        - Speed 2%: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000004000000000000003C000000010001
-        - Speed 14%: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F0000001C000000000000003C000000010001
-        - Speed 15%: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F0000001E000000000000003C000000010001
-        - Speed 16%: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000020000000000000003C000000010001
-        - Speed 17%: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000022000000000000003C000000010001
-        - Speed 20%: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000028000000000000003C000000010001
-        - Speed 24%: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000030000000000000003C000000010001
+        - Temperature 0°C: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000000000000000000003C000000010001
+        - Temperature 1°C: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000002000000000000003C000000010001
+        - Temperature 2°C: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000004000000000000003C000000010001
+        - Temperature 14°C: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F0000001C000000000000003C000000010001
+        - Temperature 15°C: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F0000001E000000000000003C000000010001
+        - Temperature 16°C: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000020000000000000003C000000010001
+        - Temperature 17°C: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000022000000000000003C000000010001
+        - Temperature 20°C: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000028000000000000003C000000010001
+        - Temperature 24°C: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000A1000F00000030000000000000003C000000010001
 
-        Default: 15
+        Default: 15°C
 
         Args:
-            speed_percentage (int): The desired fan speed percentage (e.g., 14, 15, 16, etc.).
+            temperature_celsius (int): The desired activation temperature in Celsius (e.g., 14, 15, 16, etc.).
 
         Returns:
             str: The command string to send to the WTW unit.
         """
-        if not (0 <= speed_percentage <= 30):
-            raise ValueError("Speed percentage for bypass must be between 0 and 30.")
-        
+        if not (0 <= temperature_celsius <= 30):
+            raise ValueError("Activation temperature must be between 0 and 30 degrees Celsius.")
+
         # Calculate the ParamID for Parameter 15
         param_id = 0xA1
 
-        # Multiply the speed percentage by 2 to get the hex representation.
-        speed_hex = f"{speed_percentage * 2:02X}"
+        # Multiply the temperature by 2 to get the hex representation.
+        temperature_hex = f"{temperature_celsius * 2:02X}"
 
         # Build the prefix based on observations.
-        prefix = f"0000{param_id:02X}000F000000{speed_hex}"
+        prefix = f"0000{param_id:02X}000F000000{temperature_hex}"
 
         # Fixed suffix for Parameter 15 based on patterns in data.
         suffix = "000000000000003C000000010001"
