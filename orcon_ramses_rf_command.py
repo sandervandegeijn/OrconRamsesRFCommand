@@ -573,37 +573,35 @@ class OrconRamsesRFCommand:
         This function controls the comfort temperature setting in degrees Celsius.
         The value can range from 0.0°C to 30.0°C, with a resolution of 0.1°C.
 
-        :param temperature: The desired comfort temperature in °C (0.0..30.0).
-        :return: The command string to set the comfort temperature.
-        :raises ValueError: if temperature is out of range.
-
-        Captured data for Parameter 14:
+        Captured commands:
         - Value 20.1: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000750092000007DA0000000000000BB8000000010001
         - Value 20.5: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000750092000008020000000000000BB8000000010001
         - Value 22.3: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000750092000008B60000000000000BB8000000010001
+        - Value 20.1: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000750092000007DA0000000000000BB8000000010001
+        - Value 20.2: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000750092000007E40000000000000BB8000000010001
+        - Value 21.0: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000750092000008340000000000000BB8000000010001
+        - Value 21.2: W --- 37:XXXXX 32:YYYYY --:------ 2411 023 0000750092000008480000000000000BB8000000010001
+
+        :param temperature: The desired comfort temperature in °C (0.0..30.0).
+        :return: The command string to set the comfort temperature.
+        :raises ValueError: if temperature is out of range.
         """
         if not (0.0 <= temperature <= 30.0):
             raise ValueError("Comfort temperature must be between 0.0 and 30.0°C.")
 
-        # Calculate the ParamID for Parameter 14 (fixed as 0x75).
-        param_id = 0x75
+        # Convert the temperature to the hexadecimal value used in the payload
+        temperature_hex = int(temperature * 100)
 
-        # Convert the temperature to its hexadecimal representation (value * 10).
-        temp_hex = f"{int(temperature * 10):04X}"
+        # Format the temperature as a 4-character uppercase hex string
+        temperature_encoded = f"{temperature_hex:04X}"
 
-        # Build the prefix based on observations.
-        prefix = f"0000{param_id:02X}0092000000{temp_hex}"
-
-        # Fixed suffix for Parameter 14 based on patterns in data.
-        suffix = "00000000000BB8000000010001"
-
-        # Combine prefix + suffix into a single hex string payload.
-        payload = prefix + suffix
-        msg = (
+        payload = (
             f"W --- {self.remote} {self.wtw} --:------ "
-            f"2411 023 {payload}"
+            f"2411 023 00007500920000{temperature_encoded}0000000000000BB8000000010001"
         )
-        return [msg]
+
+        return [payload]
+
 
     def set_min_fan_speed_bypass(self, speed_percentage: int) -> str:
         """
