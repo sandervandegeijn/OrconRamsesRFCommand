@@ -27,6 +27,7 @@ class OrconRamsesRFCommand:
         15. Cooling Season Activation Temperature (Parameter 15): Controlled by `set_cooling_activation_temp()`. Sets the outdoor temperature for cooling season activation (0°C to 30°C).
         16. Minimal Speed of the HRC in Bypass Scenario (Parameter 16): Controlled by set_min_fan_speed_during_bypass(). Adjusts the minimal fan speed of the HRC in the bypass scenario (0-100%).
         17. Regulation Setting for Bypass Fan Speed (Parameter 17): Controlled by set_bypass_fan_speed_regulation(). Adjusts the regulation setting for bypass fan speed (default: 4).
+        18. Bypass Fan Speed Setting (Parameter 18): Controlled by set_bypass_fan_speed_setting(). Adjusts the bypass fan speed setting (default: 0).
 
     Additional Functions:
         - Bypass Control: Includes `open_bypass()`, `close_bypass()`, and `automatic_bypass()` for managing the bypass settings.
@@ -700,6 +701,33 @@ class OrconRamsesRFCommand:
         if setting == 4:
             payload = "0000E70000000000040000000300000005000000010000"
 
+        # Construct the full message
+        msg = (
+            f"W --- {self.remote} {self.wtw} --:------ "
+            f"2411 023 {payload}"
+        )
+
+        return [msg]
+    
+    def set_bypass_fan_speed_setting(self, setting: int) -> str:
+        """
+        Adjust the bypass fan speed setting.
+
+        Parameter 18 corresponds to the bypass fan speed setting.
+
+        :param setting: The desired setting (0 to follow parameter 16, 1 to follow parameter 17).
+        :return: The command string for setting the bypass fan speed.
+        :raises ValueError: If the provided setting is not 0 or 1.
+        """
+        if setting not in (0, 1):
+            raise ValueError("Bypass fan speed setting for parameter 18 must be 0 or 1.")
+        
+        if setting == 0:
+            payload = "0000E80000000000000000000000000001000000010000"
+
+        if setting == 1:
+            payload = "0000E80000000000010000000000000001000000010000"
+        
         # Construct the full message
         msg = (
             f"W --- {self.remote} {self.wtw} --:------ "
